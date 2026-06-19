@@ -4,7 +4,7 @@
   <groupId>io.github.kathukyabrian</groupId>
   <artifactId>mpesa</artifactId>
   <name>mpesa</name>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <description>easily integrate mpesa payments in your application.</description>
   <url>http://www.example.com</url>
   <developers>
@@ -41,6 +41,13 @@
         <configuration>
           <source>21</source>
           <source>21</source>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
@@ -76,7 +83,7 @@
       <plugin>
         <groupId>org.sonatype.central</groupId>
         <artifactId>central-publishing-maven-plugin</artifactId>
-        <version>0.7.0</version>
+        <version>0.11.0</version>
         <extensions>true</extensions>
         <configuration>
           <publishingServerId>central</publishingServerId>
@@ -119,13 +126,28 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>12.2.2</version>
+        <configuration>
+          <nvdApiKey>2ae6dca2-c6f2-48e5-8338-a54d51e226f7</nvdApiKey>
+          <failBuildOnCVSS>7</failBuildOnCVSS>
+          <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+          <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
+          <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
+          <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
+          <bundleAuditAnalyzerEnabled>false</bundleAuditAnalyzerEnabled>
+          <yarnAuditAnalyzerEnabled>false</yarnAuditAnalyzerEnabled>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.36</version>
+      <version>1.18.46</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -184,8 +206,9 @@
   </distributionManagement>
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
+    <lombok.version>1.18.46</lombok.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <log4j.version>2.24.3</log4j.version>
-    <jackson.version>2.18.2</jackson.version>
+    <log4j.version>2.26.0</log4j.version>
+    <jackson.version>2.22.0</jackson.version>
   </properties>
 </project>
