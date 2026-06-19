@@ -1,9 +1,9 @@
 package io.github.kathukyabrian.core;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.github.kathukyabrian.config.ApplicationProperties;
 import io.github.kathukyabrian.config.ConfigUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
