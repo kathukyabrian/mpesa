@@ -243,7 +243,7 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>12.2.2</version>
                 <configuration>
-                    <nvdApiKey>2ae6dca2-c6f2-48e5-8338-a54d51e226f7</nvdApiKey>
+                    <nvdApiKey>36ccd587-1ac5-4953-837f-9a1ad22329d3</nvdApiKey>
                     <failBuildOnCVSS>7</failBuildOnCVSS>
                     <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
                     <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
