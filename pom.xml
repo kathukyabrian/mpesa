@@ -123,14 +123,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-<!--    <distributionManagement>-->
-<!--        <snapshotRepository>-->
-<!--            <id>ossrh</id>-->
-<!--            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>-->
-<!--        </snapshotRepository>-->
-<!--    </distributionManagement>-->
-
     <build>
         <resources>
             <resource>
@@ -244,13 +236,6 @@
                 <version>12.2.2</version>
                 <configuration>
                     <nvdApiKey>36ccd587-1ac5-4953-837f-9a1ad22329d3</nvdApiKey>
-                    <failBuildOnCVSS>7</failBuildOnCVSS>
-                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                    <ossIndexAnalyzerEnabled>false</ossIndexAnalyzerEnabled>
-                    <nodeAnalyzerEnabled>false</nodeAnalyzerEnabled>
-                    <nodeAuditAnalyzerEnabled>false</nodeAuditAnalyzerEnabled>
-                    <bundleAuditAnalyzerEnabled>false</bundleAuditAnalyzerEnabled>
-                    <yarnAuditAnalyzerEnabled>false</yarnAuditAnalyzerEnabled>
                 </configuration>
             </plugin>
 
