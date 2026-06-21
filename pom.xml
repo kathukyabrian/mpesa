@@ -37,9 +37,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/kathukyabrian/lipa-mpesa.git</connection>
-        <developerConnection>scm:git:ssh://github.com:kathukyabrian/lipa-mpesa.git</developerConnection>
-        <url>http://github.com/kathukyabrian/lipa-mpesa/tree/master</url>
+        <connection>scm:git:git://github.com/kathukyabrian/mpesa.git</connection>
+        <developerConnection>scm:git:ssh://github.com:kathukyabrian/mpesa.git</developerConnection>
+        <url>http://github.com/kathukyabrian/mpesa/tree/master</url>
     </scm>
 
     <distributionManagement>
