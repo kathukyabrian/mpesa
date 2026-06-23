@@ -14,8 +14,11 @@ Supports STK Push, transaction status queries, authentication, and callback proc
 ## Features
 - Auth 
 - STK Push
-- Query Transaction Status
+- Query Transaction Status(coming soon)
 - Quick Configuration
+
+## Getting Daraja Credentials
+Create a developer account at [Safaricom Daraja Developer Portal](https://developer.safaricom.co.ke)
 
 ## Installation
 For Maven:
@@ -26,11 +29,12 @@ For Maven:
     <version>1.0.3</version>
 </dependency>
 ```
+Latest Version: 1.0.3
 
 ## Quick Start
 ### Configuration
-- create a file called mpesa.properties
-- save this file in classpath
+- Create a file called `mpesa.properties`
+- Place the file on the application's classpath
 ```properties
 short-code=
 transaction-type=
@@ -48,7 +52,7 @@ query-url=https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query
 | Property         | Description                                                                                                                  |
 |------------------|------------------------------------------------------------------------------------------------------------------------------|
 | short-code       | Unique code given by Mpesa to a merchant to accept payments.                                                                 |
-| identifier       | Similar to shortcode.                                                                                                        |
+| identifier       | Organization identifier used for authentication. In most cases this is the same value as the shortcode.                      |
 | transaction-type | Either __CustomerPayBillOnline__ for Paybill or __CustomerBuyGoodsOnline__ for till.                                         |
 | pass-key         | Provided by Daraja upon go live to be used to generate password during STK Push request.                                     |
 | callback-url     | The URL that will receive the callback upon payment completion.                                                              |
@@ -92,7 +96,8 @@ public class MpesaConfig {
 - on your service method use the __requestPayment()__ method to request payment.
 
 ```java
-import io.github.kathukyabrian.core.Mpesa;import io.github.kathukyabrian.dto.MpesaSTKResponse;
+import io.github.kathukyabrian.core.Mpesa;
+import io.github.kathukyabrian.dto.MpesaSTKResponse;
 
 MpesaSTKResponse response = Mpesa.requestPayment(1,"2547xxxxxxxx", "ACC-8271", "payment description");
 ```
@@ -117,6 +122,12 @@ public class PaymentResource {
     }
 }
 ```
+
+## Contributing
+Contributions are welcome.
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
 ## License
 Apache 2.0
