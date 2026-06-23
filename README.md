@@ -4,8 +4,12 @@
 ![Security](https://img.shields.io/badge/security-no%20critical%20issues-green)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-# MPESA LIBRARY
-- Integrate with MPESA quickly using this simple mpesa library
+
+# MPESA Library
+
+A lightweight Java library for integrating with Safaricom M-Pesa Daraja APIs.
+
+Supports STK Push, transaction status queries, authentication, and callback processing with minimal configuration.
 
 ## Features
 - Auth 
@@ -35,9 +39,9 @@ pass-key=
 callback-url=
 consumer-key=
 consumer-secret=
-auth-url=
-payment-url=
-query-url=
+auth-url=https://sandbox.safaricom.co.ke/oauth/v1/generate
+payment-url=https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest
+query-url=https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query
 ```
 
 ### Properties Description
@@ -100,10 +104,17 @@ MpesaSTKResponse response = Mpesa.requestPayment(1,"2547xxxxxxxx", "ACC-8271", "
 import io.github.kathukyabrian.core.Mpesa;
 import io.github.kathukyabrian.dto.MpesaPaymentResult;
 import io.github.kathukyabrian.dto.result.MpesaResult;
+import org.springframework.web.bind.annotation.*;
 
-void handleCallback(MpesaResult mpesaResult) {
-    MpesaPaymentResult result = Mpesa.handleResult(mpesaResult);
-    // process callback
+@RequestMapping("/api/payments")
+@RestController
+public class PaymentResource {
+    
+    @PostMapping("/callback")
+    public void handleCallback(@RequestBody MpesaResult mpesaResult) {
+        MpesaPaymentResult result = Mpesa.handleResult(mpesaResult);
+        // process callback
+    }
 }
 ```
 
