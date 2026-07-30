@@ -23,70 +23,45 @@ public class Mpesa {
     private static final Logger logger = LogManager.getLogger(Mpesa.class);
 
     public static MpesaSTKResponse requestPayment(Integer amount, String phoneNumber, String accountRef, String transactionDesc) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         String accessToken = Auth.getAccessToken(logger);
 
         ApplicationProperties applicationProperties = ServiceRepositoryFactory.getApplicationProperties();
-        STKRequest stkRequest = new STKRequest();
-        stkRequest.setTimeStamp(DarajaUtil.generateTimestamp());
-        stkRequest.setAmount(amount);
-        try {
-            stkRequest.setPartyA(Long.parseLong(phoneNumber));
-            stkRequest.setPhoneNumber(Long.parseLong(phoneNumber));
-            stkRequest.setBusinessShortCode(Long.parseLong(applicationProperties.getShortCode()));
-            stkRequest.setPartyB(Long.parseLong(applicationProperties.getIdentifier()));
-        } catch (NumberFormatException ignore) {
-        }
-        stkRequest.setTransactionType(applicationProperties.getTransactionType());
-        stkRequest.setCallBackUrl(applicationProperties.getCallbackUrl());
-        stkRequest.setAccountReference(accountRef);
-        stkRequest.setTransactionDesc(transactionDesc);
+        STKRequest stkRequest = createSTKRequest(
+                amount, phoneNumber, applicationProperties.getShortCode(), applicationProperties.getIdentifier(),
+                accountRef, transactionDesc, applicationProperties.getTransactionType(), applicationProperties.getCallbackUrl()
+        );
 
         String password = DarajaUtil.generatePassword(applicationProperties.getShortCode(), applicationProperties.getPassKey(), stkRequest.getTimeStamp());
         stkRequest.setPassword(password);
 
         String url = applicationProperties.getPaymentUrl();
 
-        String body = null;
-        try {
-            body = objectMapper.writeValueAsString(stkRequest);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException ignore) {
-        }
+        return makeSTKPushRequest(url, accessToken, stkRequest);
+    }
 
-        Map<String, String> headerMap = new HashMap<>();
-        headerMap.put("Authorization", "Bearer " + accessToken);
+    public static MpesaSTKResponse requestPayment(ExternalPaymentRequest externalPaymentRequest) {
 
-        String response = null;
-        try {
-            response = HttpUtil.post(url, body, headerMap, MediaType.get("application/json; charset=utf-8"));
-        } catch (IOException e) {
-            logger.error("Encountered exception ", e);
-        }
+        String accessToken = Auth.getAccessToken(externalPaymentRequest.getConsumerKey(), externalPaymentRequest.getConsumerSecret(), logger);
 
-        logger.info("system|got response from daraja: {}", response);
+        ApplicationProperties applicationProperties = ServiceRepositoryFactory.getApplicationProperties();
 
-        STKSuccessResponse successResponse = null;
-        STKErrorResponse errorResponse = null;
-        try {
-            successResponse = objectMapper.readValue(response, STKSuccessResponse.class);
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            try {
-                errorResponse = objectMapper.readValue(response, STKErrorResponse.class);
-            } catch (JsonProcessingException ignore) {
-            }
-        }
+        STKRequest stkRequest = createSTKRequest(
+                externalPaymentRequest.getAmount(),
+                externalPaymentRequest.getPhoneNumber(),
+                externalPaymentRequest.getShortCode(),
+                externalPaymentRequest.getShortCode(),
+                externalPaymentRequest.getAccountRef(),
+                externalPaymentRequest.getTransactionDesc(),
+                externalPaymentRequest.getTransactionType(),
+                applicationProperties.getCallbackUrl()
+        );
 
+        String password = DarajaUtil.generatePassword(externalPaymentRequest.getShortCode(), externalPaymentRequest.getPassKey(), stkRequest.getTimeStamp());
+        stkRequest.setPassword(password);
 
-        if (successResponse != null) {
-            return new MpesaSTKResponse(successResponse.getMerchantRequestId(), successResponse.getResponseCode(), successResponse.getResponseDescription(), successResponse.getResponseCode().equals("0"));
-        }
+        String url = applicationProperties.getPaymentUrl();
 
-        if (errorResponse != null) {
-            return new MpesaSTKResponse(errorResponse.getMerchantRequestId(), errorResponse.getResponseCode(), errorResponse.getResponseDescription(), false);
-        }
-
-        return null;
+        return makeSTKPushRequest(url, accessToken, stkRequest);
     }
 
     public static MpesaPaymentResult handleResult(MpesaResult mpesaResult) {
@@ -145,5 +120,65 @@ public class Mpesa {
         } catch (IOException ex) {
             return new MpesaQueryTransactionResponse(originatorConversationId, "-1", ex.getMessage(), false);
         }
+    }
+
+    private static STKRequest createSTKRequest(Integer amount, String phoneNumber, String shortCode, String identifier, String accountRef, String transactionDesc, String transactionType, String callbackUrl) {
+        STKRequest stkRequest = new STKRequest();
+        stkRequest.setTimeStamp(DarajaUtil.generateTimestamp());
+        stkRequest.setAmount(amount);
+        try {
+            stkRequest.setPartyA(Long.parseLong(phoneNumber));
+            stkRequest.setPhoneNumber(Long.parseLong(phoneNumber));
+            stkRequest.setBusinessShortCode(Long.parseLong(shortCode));
+            stkRequest.setPartyB(Long.parseLong(identifier));
+        } catch (NumberFormatException ignore) {
+        }
+        stkRequest.setTransactionType(transactionType);
+        stkRequest.setCallBackUrl(callbackUrl);
+        stkRequest.setAccountReference(accountRef);
+        stkRequest.setTransactionDesc(transactionDesc);
+        return stkRequest;
+    }
+
+    private static MpesaSTKResponse makeSTKPushRequest(String url, String accessToken, STKRequest stkRequest) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String body = null;
+        try {
+            body = objectMapper.writeValueAsString(stkRequest);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException ignore) {
+        }
+
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("Authorization", "Bearer " + accessToken);
+
+        String response = null;
+        try {
+            response = HttpUtil.post(url, body, headerMap, MediaType.get("application/json; charset=utf-8"));
+        } catch (IOException e) {
+            logger.error("Encountered exception ", e);
+        }
+
+        logger.info("system|got response from daraja: {}", response);
+
+        STKSuccessResponse successResponse = null;
+        STKErrorResponse errorResponse = null;
+        try {
+            successResponse = objectMapper.readValue(response, STKSuccessResponse.class);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            try {
+                errorResponse = objectMapper.readValue(response, STKErrorResponse.class);
+            } catch (JsonProcessingException ignore) {
+            }
+        }
+
+        if (successResponse != null) {
+            return new MpesaSTKResponse(successResponse.getMerchantRequestId(), successResponse.getResponseCode(), successResponse.getResponseDescription(), successResponse.getResponseCode().equals("0"));
+        }
+
+        if (errorResponse != null) {
+            return new MpesaSTKResponse(errorResponse.getMerchantRequestId(), errorResponse.getResponseCode(), errorResponse.getResponseDescription(), false);
+        }
+
+        return null;
     }
 }
