@@ -159,7 +159,7 @@ public class Mpesa {
             logger.error("Encountered exception ", e);
         }
 
-        logger.info("system|got response from daraja: {}", response);
+        logger.info("system|got response from daraja: ******");
 
         STKSuccessResponse successResponse = null;
         STKErrorResponse errorResponse = null;
