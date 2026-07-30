@@ -192,6 +192,7 @@ public class Mpesa {
         try {
             String requestStr = objectMapper.writeValueAsString(request);
             String response = HttpUtil.post(url, requestStr, headers, MediaType.get("application/json; charset=utf-8"));
+//            logger.info("system|response from daraja for stk push query:{}", response);
             QueryTransactionResponse queryTransactionResponse = objectMapper.readValue(response, QueryTransactionResponse.class);
             return new MpesaQueryTransactionResponse(originatorConversationId, queryTransactionResponse.getResultCode(), queryTransactionResponse.getResultDescription(), "0".equals(queryTransactionResponse.getResultCode()));
         } catch (IOException ex) {
