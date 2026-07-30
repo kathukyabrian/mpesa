@@ -94,7 +94,6 @@ public class Mpesa {
 
     public static MpesaQueryTransactionResponse queryTransaction(String originatorConversationId) {
         ApplicationProperties applicationProperties = ServiceRepositoryFactory.getApplicationProperties();
-        ObjectMapper objectMapper = new ObjectMapper();
 
         String accessToken = Auth.getAccessToken(logger);
 
@@ -106,17 +105,22 @@ public class Mpesa {
         request.setPassword(password);
         request.setCheckoutRequestId(originatorConversationId);
 
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + accessToken);
+        return makeQueryTransactionRequest(applicationProperties.getQueryUrl(), originatorConversationId, accessToken, request);
+    }
 
-        try {
-            String requestStr = objectMapper.writeValueAsString(request);
-            String response = HttpUtil.post(applicationProperties.getQueryUrl(), requestStr, headers, MediaType.get("application/json; charset=utf-8"));
-            QueryTransactionResponse queryTransactionResponse = objectMapper.readValue(response, QueryTransactionResponse.class);
-            return new MpesaQueryTransactionResponse(originatorConversationId, queryTransactionResponse.getResultCode(), queryTransactionResponse.getResultDescription(), "0".equals(queryTransactionResponse.getResultCode()));
-        } catch (IOException ex) {
-            return new MpesaQueryTransactionResponse(originatorConversationId, "-1", ex.getMessage(), false);
-        }
+    public static MpesaQueryTransactionResponse queryTransaction(ExternalQueryTransactionRequest externalRequest) {
+        ApplicationProperties applicationProperties = ServiceRepositoryFactory.getApplicationProperties();
+
+        String accessToken = Auth.getAccessToken(externalRequest.getConsumerSecret(), externalRequest.getConsumerKey(), logger);
+
+        String timestamp = DarajaUtil.generateTimestamp();
+        String password = DarajaUtil.generatePassword(externalRequest.getShortCode(), externalRequest.getPassKey(), timestamp);
+        QueryTransactionRequest request = new QueryTransactionRequest();
+        request.setBusinessShortCode(externalRequest.getShortCode());
+        request.setTimestamp(timestamp);
+        request.setPassword(password);
+        request.setCheckoutRequestId(externalRequest.getOriginatorConversationId());
+        return makeQueryTransactionRequest(applicationProperties.getQueryUrl(), externalRequest.getOriginatorConversationId(), accessToken, request);
     }
 
     private static STKRequest createSTKRequest(Integer amount, String phoneNumber, String shortCode, String identifier, String accountRef, String transactionDesc, String transactionType, String callbackUrl) {
@@ -177,5 +181,21 @@ public class Mpesa {
         }
 
         return null;
+    }
+
+    private static MpesaQueryTransactionResponse makeQueryTransactionRequest(String url, String originatorConversationId, String accessToken, QueryTransactionRequest request) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + accessToken);
+
+        try {
+            String requestStr = objectMapper.writeValueAsString(request);
+            String response = HttpUtil.post(url, requestStr, headers, MediaType.get("application/json; charset=utf-8"));
+            QueryTransactionResponse queryTransactionResponse = objectMapper.readValue(response, QueryTransactionResponse.class);
+            return new MpesaQueryTransactionResponse(originatorConversationId, queryTransactionResponse.getResultCode(), queryTransactionResponse.getResultDescription(), "0".equals(queryTransactionResponse.getResultCode()));
+        } catch (IOException ex) {
+            return new MpesaQueryTransactionResponse(originatorConversationId, "-1", ex.getMessage(), false);
+        }
     }
 }
