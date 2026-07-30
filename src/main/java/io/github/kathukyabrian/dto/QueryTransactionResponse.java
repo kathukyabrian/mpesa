@@ -5,11 +5,17 @@ import lombok.Data;
 
 @Data
 public class QueryTransactionResponse {
-    @JsonProperty("OriginatorConversationID")
-    private String originatorConversationId;
+    @JsonProperty("MerchantRequestID")
+    private String merchantRequestId;
 
-    @JsonProperty("ConversationID")
-    private String conversationId;
+    @JsonProperty("CheckoutRequestID")
+    private String checkoutRequestId;
+
+    @JsonProperty("ResultCode")
+    private String resultCode;
+
+    @JsonProperty("ResultDesc")
+    private String resultDescription;
 
     @JsonProperty("ResponseCode")
     private String responseCode;

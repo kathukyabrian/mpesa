@@ -98,16 +98,13 @@ public class Mpesa {
 
         String accessToken = Auth.getAccessToken(logger);
 
+        String timestamp = DarajaUtil.generateTimestamp();
+        String password = DarajaUtil.generatePassword(applicationProperties.getShortCode(), applicationProperties.getPassKey(), timestamp);
         QueryTransactionRequest request = new QueryTransactionRequest();
-        request.setInitiator(""); // todo: set appropriately
-        request.setSecurityCredential(""); // todo: set appropriately
-        request.setTransactionId(null);
-        request.setOriginatorConversationId(originatorConversationId);
-        request.setResultUrl(applicationProperties.getCallbackUrl()); //todo: check if there's need to change
-        try {
-            request.setPartyA(Long.valueOf(applicationProperties.getShortCode()));
-        } catch (NumberFormatException ignore) {
-        }
+        request.setBusinessShortCode(applicationProperties.getShortCode());
+        request.setTimestamp(timestamp);
+        request.setPassword(password);
+        request.setCheckoutRequestId(originatorConversationId);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + accessToken);
@@ -116,7 +113,7 @@ public class Mpesa {
             String requestStr = objectMapper.writeValueAsString(request);
             String response = HttpUtil.post(applicationProperties.getQueryUrl(), requestStr, headers, MediaType.get("application/json; charset=utf-8"));
             QueryTransactionResponse queryTransactionResponse = objectMapper.readValue(response, QueryTransactionResponse.class);
-            return new MpesaQueryTransactionResponse(originatorConversationId, queryTransactionResponse.getResponseCode(), queryTransactionResponse.getResponseDescription(), "0".equals(queryTransactionResponse.getResponseCode()));
+            return new MpesaQueryTransactionResponse(originatorConversationId, queryTransactionResponse.getResultCode(), queryTransactionResponse.getResultDescription(), "0".equals(queryTransactionResponse.getResultCode()));
         } catch (IOException ex) {
             return new MpesaQueryTransactionResponse(originatorConversationId, "-1", ex.getMessage(), false);
         }
@@ -172,11 +169,11 @@ public class Mpesa {
         }
 
         if (successResponse != null) {
-            return new MpesaSTKResponse(successResponse.getMerchantRequestId(), successResponse.getResponseCode(), successResponse.getResponseDescription(), successResponse.getResponseCode().equals("0"));
+            return new MpesaSTKResponse(successResponse.getMerchantRequestId(), successResponse.getCheckOutRequestId(), successResponse.getResponseCode(), successResponse.getResponseDescription(), successResponse.getResponseCode().equals("0"));
         }
 
         if (errorResponse != null) {
-            return new MpesaSTKResponse(errorResponse.getMerchantRequestId(), errorResponse.getResponseCode(), errorResponse.getResponseDescription(), false);
+            return new MpesaSTKResponse(errorResponse.getMerchantRequestId(), errorResponse.getCheckOutRequestId(), errorResponse.getResponseCode(), errorResponse.getResponseDescription(), false);
         }
 
         return null;
