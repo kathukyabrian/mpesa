@@ -92,7 +92,7 @@ public class MpesaConfig {
 ### Usage
 - You are ready to use the library.
 
-#### STK push
+#### STK Push(single config)
 - on your service method use the __requestPayment()__ method to request payment.
 
 ```java
@@ -100,6 +100,23 @@ import io.github.kathukyabrian.core.Mpesa;
 import io.github.kathukyabrian.dto.MpesaSTKResponse;
 
 MpesaSTKResponse response = Mpesa.requestPayment(1,"2547xxxxxxxx", "ACC-8271", "payment description");
+```
+
+#### STK Push(multiple configs)
+- incase you have multiple configs i.e multiple tenants, you can pass more information specific to the tenant
+- construct an ExternalPaymentRequest and submit to the library as shown below:
+```java
+ExternalPaymentRequest externalPaymentRequest = new ExternalPaymentRequest();
+externalPaymentRequest.setConsumerKey("consumer-key");
+externalPaymentRequest.setConsumerSecret("consumer-secret");
+externalPaymentRequest.setPassKey("pass-key");
+externalPaymentRequest.setShortCode("1234");
+externalPaymentRequest.setAmount(1);
+externalPaymentRequest.setPhoneNumber("2547xxxxxxxx");
+externalPaymentRequest.setAccountRef("account-ref");
+externalPaymentRequest.setTransactionDesc("transaction-ref");
+externalPaymentRequest.setTransactionType("CustomerBuyGoodsOnline|CustomerPayBillOnline");
+MpesaSTKResponse stkResponse = Mpesa.requestPayment(externalPaymentRequest);
 ```
 
 #### Callback
@@ -121,6 +138,25 @@ public class PaymentResource {
         // process callback
     }
 }
+```
+
+#### Query Transaction Status(single config)
+- make the call to the framework with the conversation id
+```java
+MpesaQueryTransactionResponse response = Mpesa.queryTransaction("conversationId");
+```
+
+
+#### Query Transaction Status(multiple configs)
+- construct an ExternalQueryTransactionRequest and submit to the framework
+```java
+ExternalQueryTransactionRequest request = new ExternalQueryTransactionRequest();
+request.setConsumerKey("consumer-key");
+request.setConsumerSecret("consumer-secret");
+request.setShortCode("123456");
+request.setPassKey("passkey");
+request.setOriginatorConversationId("conversationId");
+MpesaQueryTransactionResponse response = Mpesa.queryTransaction(request);
 ```
 
 ## Contributing
