@@ -106,6 +106,10 @@ MpesaSTKResponse response = Mpesa.requestPayment(1,"2547xxxxxxxx", "ACC-8271", "
 - incase you have multiple configs i.e multiple tenants, you can pass more information specific to the tenant
 - construct an ExternalPaymentRequest and submit to the library as shown below:
 ```java
+import io.github.kathukyabrian.core.Mpesa;
+import io.github.kathukyabrian.dto.ExternalPaymentRequest;
+import io.github.kathukyabrian.dto.MpesaSTKResponse;
+
 ExternalPaymentRequest externalPaymentRequest = new ExternalPaymentRequest();
 externalPaymentRequest.setConsumerKey("consumer-key");
 externalPaymentRequest.setConsumerSecret("consumer-secret");
@@ -143,6 +147,10 @@ public class PaymentResource {
 #### Query Transaction Status(single config)
 - make the call to the framework with the conversation id
 ```java
+import io.github.kathukyabrian.core.Mpesa;
+import io.github.kathukyabrian.dto.MpesaQueryTransactionResponse;
+
+
 MpesaQueryTransactionResponse response = Mpesa.queryTransaction("conversationId");
 ```
 
@@ -150,6 +158,10 @@ MpesaQueryTransactionResponse response = Mpesa.queryTransaction("conversationId"
 #### Query Transaction Status(multiple configs)
 - construct an ExternalQueryTransactionRequest and submit to the framework
 ```java
+import io.github.kathukyabrian.core.Mpesa;
+import io.github.kathukyabrian.dto.MpesaQueryTransactionResponse;
+import io.github.kathukyabrian.dto.ExternalQueryTransactionRequest;
+
 ExternalQueryTransactionRequest request = new ExternalQueryTransactionRequest();
 request.setConsumerKey("consumer-key");
 request.setConsumerSecret("consumer-secret");
