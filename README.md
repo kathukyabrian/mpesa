@@ -26,10 +26,10 @@ For Maven:
 <dependency>
     <groupId>io.github.kathukyabrian</groupId>
     <artifactId>mpesa</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.6</version>
 </dependency>
 ```
-Latest Version: 1.0.3
+Latest Version: 1.0.6
 
 ## Quick Start
 ### Configuration

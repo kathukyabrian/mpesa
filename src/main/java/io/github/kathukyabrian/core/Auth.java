@@ -13,11 +13,12 @@ import org.apache.logging.log4j.Logger;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Auth {
     private static String defaultConsumerKey;
 
-    private static Map<String, AuthToken> authTokenMap;
+    private static final Map<String, AuthToken> authTokenMap = new ConcurrentHashMap<>();
 
 
     public static String getAccessToken(Logger logger) {
@@ -35,11 +36,11 @@ public class Auth {
         }
     }
 
-    public static String getAccessToken(String consumerSecret, String consumerKey, Logger logger) {
+    public static String getAccessToken(String consumerKey, String consumerSecret, Logger logger) {
         AuthToken authToken = authTokenMap.get(consumerKey);
 
         if (authToken == null) {
-            return getAuth(consumerSecret, consumerSecret, logger);
+            return getAuth(consumerKey, consumerSecret, logger);
         }
 
         if (LocalDateTime.now().isBefore(authToken.getNextRefreshTime())) {

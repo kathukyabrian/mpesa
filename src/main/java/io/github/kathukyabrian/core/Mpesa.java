@@ -111,7 +111,7 @@ public class Mpesa {
     public static MpesaQueryTransactionResponse queryTransaction(ExternalQueryTransactionRequest externalRequest) {
         ApplicationProperties applicationProperties = ServiceRepositoryFactory.getApplicationProperties();
 
-        String accessToken = Auth.getAccessToken(externalRequest.getConsumerSecret(), externalRequest.getConsumerKey(), logger);
+        String accessToken = Auth.getAccessToken(externalRequest.getConsumerKey(), externalRequest.getConsumerSecret(), logger);
 
         String timestamp = DarajaUtil.generateTimestamp();
         String password = DarajaUtil.generatePassword(externalRequest.getShortCode(), externalRequest.getPassKey(), timestamp);
