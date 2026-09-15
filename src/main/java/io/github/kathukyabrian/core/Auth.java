@@ -3,6 +3,7 @@ package io.github.kathukyabrian.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.kathukyabrian.config.ApplicationProperties;
 import io.github.kathukyabrian.core.factory.ServiceRepositoryFactory;
+import io.github.kathukyabrian.dto.AuthToken;
 import io.github.kathukyabrian.dto.DarajaAuthResponse;
 import io.github.kathukyabrian.util.DarajaUtil;
 import io.github.kathukyabrian.util.HttpUtil;
@@ -14,29 +15,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Auth {
-    private static LocalDateTime nextRefreshTime;
-    private static String accessToken;
+    private static String defaultConsumerKey;
+
+    private static Map<String, AuthToken> authTokenMap;
 
 
     public static String getAccessToken(Logger logger) {
-        if (nextRefreshTime == null) {
+        // get default authtoken
+        if (defaultConsumerKey == null) {
             return getAuth(logger);
         }
 
-        if (LocalDateTime.now().isBefore(nextRefreshTime)) {
-            return accessToken;
+        AuthToken defaultAuthToken = authTokenMap.get(defaultConsumerKey);
+
+        if (LocalDateTime.now().isBefore(defaultAuthToken.getNextRefreshTime())) {
+            return defaultAuthToken.getAccessToken();
         } else {
             return getAuth(logger);
         }
     }
 
     public static String getAccessToken(String consumerSecret, String consumerKey, Logger logger) {
-        if (nextRefreshTime == null) {
-            return getAuth(logger);
+        AuthToken authToken = authTokenMap.get(consumerKey);
+
+        if (authToken == null) {
+            return getAuth(consumerSecret, consumerSecret, logger);
         }
 
-        if (LocalDateTime.now().isBefore(nextRefreshTime)) {
-            return accessToken;
+        if (LocalDateTime.now().isBefore(authToken.getNextRefreshTime())) {
+            return authToken.getAccessToken();
         } else {
             return getAuth(consumerKey, consumerSecret, logger);
         }
@@ -49,9 +56,10 @@ public class Auth {
 
         DarajaAuthResponse darajaAuthResponse = makeAuthRequest(url, password, logger);
         if (darajaAuthResponse != null) {
-            accessToken = darajaAuthResponse.getAccessToken();
-            nextRefreshTime = LocalDateTime.now().plusMinutes(59);
-            return accessToken;
+            AuthToken authToken = new AuthToken(LocalDateTime.now().plusMinutes(59), darajaAuthResponse.getAccessToken());
+            defaultConsumerKey = applicationProperties.getConsumerKey();
+            authTokenMap.put(defaultConsumerKey, authToken);
+            return authToken.getAccessToken();
         }
 
         return null;
@@ -66,11 +74,12 @@ public class Auth {
         DarajaAuthResponse darajaAuthResponse = makeAuthRequest(url, password, logger);
 
         if (darajaAuthResponse != null) {
-            accessToken = darajaAuthResponse.getAccessToken();
-            nextRefreshTime = LocalDateTime.now().plusMinutes(59);
+            AuthToken authToken = new AuthToken(LocalDateTime.now().plusMinutes(59), darajaAuthResponse.getAccessToken());
+            authTokenMap.put(consumerKey, authToken);
+            return darajaAuthResponse.getAccessToken();
         }
 
-        return accessToken;
+        return null;
     }
 
     private static DarajaAuthResponse makeAuthRequest(String url, String password, Logger logger) {
