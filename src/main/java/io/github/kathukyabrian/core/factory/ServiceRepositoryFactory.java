@@ -15,7 +15,6 @@ public class ServiceRepositoryFactory {
             serviceRepository = new ServiceRepository();
             try {
                 serviceRepository.init();
-                serviceRepository.start();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
